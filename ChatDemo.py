@@ -43,14 +43,10 @@ do_message = RunnableWithMessageHistory(
 def chat(chat_message: str):
     print(f'历史输入信息：{store}')
 
-    response = do_message.invoke({
-        'my_msg': [HumanMessage(content=chat_message)],
-        'language': '中文'
-    },
-        config=config
-
-    )
-    print(response.content)
+    # 流式输出
+    for response in do_message.stream({'my_msg': [HumanMessage(content=chat_message)], 'language': '中文'},
+                                      config=config):
+        print(response.content, end=' ')
 
 
 if __name__ == '__main__':
