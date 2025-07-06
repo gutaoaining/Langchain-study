@@ -33,9 +33,8 @@ print(f'Model_Result_Content:{response2.tool_calls}')
 
 # 创建代理
 agent_executor = chat_agent_executor.create_tool_calling_executor(model, [search])
-question1 = {'messages': [HumanMessage(content="中国的首都是哪个城市？")]}
-resp1 = agent_executor.invoke(**question1)
+resp1 = agent_executor.invoke({'messages': [HumanMessage(content="中国的首都是哪个城市？")]})
 print(resp1['messages'])
-question2 = {'messages': [HumanMessage(content="北京天气怎么样？")]}
-resp2 = agent_executor.invoke(**question2)
+resp2 = agent_executor.invoke({'messages': [HumanMessage(content="北京天气怎么样？")]})
 print(resp2['messages'])
+print(resp2['messages'][2].content)
