@@ -23,6 +23,8 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langgraph.prebuilt import chat_agent_executor
 
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ['LANGCHAIN_PROJECT'] = 'LangChainSQLDemo'
+
 HOST_NAME = '127.0.0.1'
 PORT = '3306'
 DATABASE = 'mytest'
@@ -57,7 +59,7 @@ system_prompt = """
 system_message = SystemMessage(content=system_prompt)
 
 # 创建代理
-agent_executor = chat_agent_executor.create_tool_calling_executor(model=model, tools=tools, prompt=system_message)
+agent_executor = chat_agent_executor.create_react_agent(model=model, tools=tools, prompt=system_message)
 
 # resp = agent_executor.invoke({'messages': [HumanMessage(content='请问：员工表中有多少条数据？')]})
 # resp = agent_executor.invoke({'messages': [HumanMessage(content='那种性别的员工人数最多？')]})
