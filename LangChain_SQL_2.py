@@ -1,7 +1,8 @@
 # 作者：顾涛
 # 创建时间：2025/8/9
-from operator import itemgetter
 import os
+from operator import itemgetter
+
 import bs4
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
@@ -21,24 +22,26 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langgraph.prebuilt import chat_agent_executor
 
-os.environ['LANGCHAIN_TRACING_V2'] = 'true'
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
 HOST_NAME = '127.0.0.1'
 PORT = '3306'
 DATABASE = 'mytest'
 USER_NAME = os.getenv('USER_NAME')
 PASSWORD = os.getenv('MYSQL_PASSWORD')
+# 聊天机器人案例
+# 创建模型
+model = ChatOpenAI(model='gpt-4-turbo')
 
+# mysqlclient驱动URL
 MYSQL_URL = 'mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8mb4'.format(USER_NAME, PASSWORD, HOST_NAME, PORT, DATABASE)
 
 db = SQLDatabase.from_uri(MYSQL_URL)
-
-model = ChatOpenAI(model='gpt-4-turbo')
 
 # 创建工具
 toolkit = SQLDatabaseToolkit(db=db, llm=model)
 tools = toolkit.get_tools()
 
-# 实用agent完成整个数据库的整合
+# 使用agent完整整个数据库的整合
 system_prompt = """
 您是一个被设计用来与SQL数据库交互的代理。
 给定一个输入问题，创建一个语法正确的SQL语句并执行，然后查看查询结果并返回答案。
@@ -54,11 +57,7 @@ system_prompt = """
 system_message = SystemMessage(content=system_prompt)
 
 # 创建代理
-agent_executor = chat_agent_executor.create_tool_calling_executor(
-    model=model,  # 模型实例（如 ChatOpenAI）
-    tools=tools,  # 工具列表
-    system_message=system_message  # 系统提示（可选）
-)
+agent_executor = chat_agent_executor.create_tool_calling_executor(model=model, tools=tools, prompt=system_message)
 
 # resp = agent_executor.invoke({'messages': [HumanMessage(content='请问：员工表中有多少条数据？')]})
 # resp = agent_executor.invoke({'messages': [HumanMessage(content='那种性别的员工人数最多？')]})
@@ -68,4 +67,4 @@ result = resp['messages']
 print(result)
 print(len(result))
 # 最后一个才是真正的答案
-print(result[len(result)-1])
+print(result[len(result) - 1])
