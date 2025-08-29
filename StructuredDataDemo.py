@@ -2,16 +2,11 @@
 # 创建时间：2025/6/29
 
 import os
-from typing import Optional
+from typing import Optional, List
 
-from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_chroma import Chroma
-from langchain_core.documents import Document
-from langchain_core.messages import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnableWithMessageHistory, RunnableLambda, RunnablePassthrough
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langserve import add_routes
 from pydantic import BaseModel, Field
 
 os.environ['LANGCHAIN_TRACING_V2'] = 'true'
@@ -34,6 +29,11 @@ class Person(BaseModel):
 
     height_in_meters: Optional[str] = Field(default=None, description="以米为单位测量的高度")
 
+class ManyPerson(BaseModel):
+    """
+        数据模型类：代表多个人
+    """
+    people: List[Person]
 
 prompt = ChatPromptTemplate.from_messages(
     [
@@ -43,8 +43,11 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-chain = {"text": RunnablePassthrough()} | prompt | model.with_structured_output(schema=Person)
+chain = {"text": RunnablePassthrough()} | prompt | model.with_structured_output(schema=ManyPerson)
 
-text = "马路上走来一个女生，长长的黑头发披在肩上，大概1米7左右，"
+# text = "马路上走来一个女生，长长的黑头发披在肩上，大概1米7左右，"
+# text = "马路上走来一个女生，长长的黑头发披在肩上，大概1米7左右。走在她旁边的是她的男朋友，叫：刘海；比她高10厘米。"
+text = "My name is Jeff, my hair is black and i am 6 feet tall. Anna has the same color hair as me."
+
 resp = chain.invoke(text)
 print(resp)
