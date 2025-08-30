@@ -59,13 +59,13 @@ reduce_chain = ReduceDocumentsChain(
 )
 
 # 第四步：合并所有链
-mao_reduce_chain = MapReduceDocumentsChain(
+map_reduce_chain = MapReduceDocumentsChain(
     llm_chain=map_llm_chain,
     reduce_documents_chain=reduce_chain,
     document_variable_name='docs',
     return_intermediate_steps=False
 )
 #第五步：调用最终的链
-result = mao_reduce_chain.invoke(split_docs)
+result = map_reduce_chain.invoke(split_docs)
 print(result['output_text'])
 
